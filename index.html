@@ -297,7 +297,7 @@ section { padding: 6rem 1.2rem; }
 }
 
 /* 左側照片 */
-.about-slides { height: 70vw; min-height: 280px; position: relative; }
+.about-slides { height: 90vw; min-height: 320px; position: relative; }
 .about-slide {
   position: absolute; inset: 0;
   opacity: 0; transition: opacity 1.1s cubic-bezier(.4,0,.2,1);
@@ -334,11 +334,11 @@ section { padding: 6rem 1.2rem; }
 /* slide counter (left bottom of about) */
 .about-step {
   position: absolute; bottom: 2.5rem; left: 2rem; z-index: 10;
-  display: none; align-items: center; gap: .8rem;
+  display: flex; align-items: center; gap: .8rem;
 }
 .about-step-dots { display: flex; gap: .5rem; }
-.about-step-dot { width: 18px; height: 1.5px; background: var(--border); transition: background .3s, width .3s; }
-.about-step-dot.active { background: var(--charcoal); width: 28px; }
+.about-step-dot { width: 18px; height: 1.5px; background: rgba(255,255,255,.45); transition: background .3s, width .3s; }
+.about-step-dot.active { background: #fff; width: 28px; }
 
 /* ── Contact ── */
 #contact { background: var(--charcoal); color: rgba(247,244,239,.9); text-align: center; }
@@ -425,7 +425,6 @@ nav.scrolled .nav-toggle span { background: var(--charcoal); }
   }
   .about-slides { height: 100%; }
   .about-text-panel { padding: 5rem 4rem; display: flex; }
-  .about-step { display: flex; }
 }
 
 /* ── xl: ≥ 1200px ── */
@@ -747,13 +746,14 @@ stepDots.forEach((dot, i) => {
 });
 
 /* ══════════════════
-   ABOUT scroll-driven
+   ABOUT scroll-driven + mobile auto-advance
 ══════════════════ */
 const aboutWrap = document.getElementById('about-wrap');
 const aSlides   = Array.from(document.querySelectorAll('.about-slide'));
 const aDots     = Array.from(document.querySelectorAll('.about-step-dot'));
 const ATOTAL    = 3;
 let aboutCur    = 0;
+let aboutTimer  = null;
 
 function setAboutSlide(idx) {
   if (idx === aboutCur) return;
@@ -775,6 +775,18 @@ window.addEventListener('scroll', () => {
   const progress = Math.max(0, Math.min(1, scrolled / scrollable));
   setAboutSlide(Math.min(ATOTAL - 1, Math.floor(progress * ATOTAL)));
 }, { passive: true });
+
+function startAboutAuto() {
+  clearInterval(aboutTimer);
+  if (window.innerWidth < 992) {
+    aboutTimer = setInterval(() => setAboutSlide((aboutCur + 1) % ATOTAL), 4000);
+  }
+}
+startAboutAuto();
+window.addEventListener('resize', startAboutAuto);
+document.getElementById('about-slides').addEventListener('click', () => {
+  if (window.innerWidth < 992) { setAboutSlide((aboutCur + 1) % ATOTAL); startAboutAuto(); }
+});
 
 /* ══════════════════
    聲音・共振・療癒
