@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梧桑頌缽心療｜身心療癒・自我覺察</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #f7f4ef;
+  --bg2:    #f0ece4;
+  --border: #ddd8ce;
+  --charcoal: #1c1a17;
+  --mid:    #6b6560;
+  --muted:  #a09890;
+  --accent: #6a8e8f;
+  --serif:  'Noto Serif TC', serif;
+  --sans:   'Noto Sans TC', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--charcoal);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── Nav ── */
+nav {
+  position: fixed; top: 0; width: 100%; z-index: 9999;
+  padding: 1rem 1.2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background .4s;
+}
+nav.scrolled {
+  background: rgba(247,244,239,0.95);
+  border-bottom: 0.5px solid var(--border);
+}
+.nav-name {
+  font-family: var(--serif); font-size: 14px;
+  letter-spacing: .14em; color: #fff; text-decoration: none;
+  text-shadow: 0 1px 8px rgba(0,0,0,.25);
+  transition: color .4s;
+}
+nav.scrolled .nav-name { color: var(--charcoal); text-shadow: none; }
+.nav-links {
+  display: flex;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #f7f4ef;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 2.5rem; z-index: 9999; list-style: none;
+  opacity: 0; pointer-events: none; transition: opacity .35s;
+}
+.nav-links.open { opacity: 1; pointer-events: auto; }
+.nav-links a {
+  font-size: 18px; color: var(--charcoal);
+  text-decoration: none; letter-spacing: .12em; transition: color .2s;
+}
+.nav-links a:hover { color: var(--charcoal); }
+
+/* ══════════════════════════════════════
+   HERO — scroll-driven + Ken Burns
+══════════════════════════════════════ */
+#hero { height: 300vh; position: relative; }
+.hero-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* hero-frame：手機 = 全螢幕，桌面 = 置中留白 */
+.hero-frame {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+
+.hero-slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 1.1s cubic-bezier(.4,0,.2,1);
+}
+.hero-slide.active { opacity: 1; }
+
+/* Ken Burns — different pattern per slide */
+.hero-slide img {
+  width: 100%; height: 100%; object-fit: cover;
+  transform-origin: center center;
+}
+.hero-slide.active img { animation: kb0 10s ease-out forwards; }
+#hslide-1.active img  { animation: kb1 10s ease-out forwards; }
+#hslide-2.active img  { animation: kb2 10s ease-out forwards; }
+
+/* 手機版（直向）— 照片直向構圖，缽在中下方 */
+#hslide-0 img { object-position: center 40%; }
+#hslide-1 img { object-position: center 45%; }
+#hslide-2 img { object-position: center 50%; }
+
+/* 桌面版（橫向, ≥768px）*/
+@media (min-width: 768px) {
+  #hslide-0 img { object-position: center 32%; }   /* 繡球花：缽為主，上方繡球花襯托 */
+  #hslide-1 img { object-position: center 72%; }   /* 流水庭園：缽為主，上方流水景襯托 */
+  #hslide-2 img { object-position: center 70%; }   /* 荷花池：缽為主，上方荷花池襯托 */
+}
+
+@keyframes kb0 {
+  from { transform: scale(1.0) translate(0, 0); }
+  to   { transform: scale(1.04) translate(-1%, -0.6%); }
+}
+@keyframes kb1 {
+  from { transform: scale(1.0) translate(0.8%, 0); }
+  to   { transform: scale(1.05) translate(-0.6%, 0.8%); }
+}
+@keyframes kb2 {
+  from { transform: scale(1.0); }
+  to   { transform: scale(1.03); }
+}
+
+/* bottom fade */
+.hero-slide::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 55%,
+    rgba(247,244,239,.35) 78%,
+    var(--bg) 100%
+  );
+  pointer-events: none;
+}
+
+/* progress bar */
+.hero-progress { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; height: 1.5px; background: var(--border); }
+.hero-progress-bar { height: 100%; background: var(--charcoal); width: 33.33%; transition: width .05s linear; }
+
+/* step dots */
+.hero-step {
+  position: absolute; bottom: 2rem; left: 1.2rem; z-index: 10;
+  display: flex; align-items: center; gap: 1rem;
+  opacity: 0; animation: fadeUp .8s ease .4s forwards;
+}
+.step-dots { display: flex; gap: .5rem; }
+.step-dot { width: 20px; height: 1.5px; background: var(--border); transition: background .3s, width .3s; }
+.step-dot.active { background: var(--charcoal); width: 32px; }
+.step-label { font-size: 10px; letter-spacing: .18em; color: var(--mid); }
+
+/* hero title */
+.hero-content {
+  position: absolute; bottom: 4.5rem; right: 1.2rem; z-index: 10; text-align: right;
+  opacity: 0; animation: fadeUp .8s ease .2s forwards;
+}
+.hero-brand {
+  font-family: var(--serif);
+  font-size: clamp(38px, 9vw, 120px);
+  font-weight: 200; line-height: 1.1;
+  letter-spacing: .14em; color: #fff;
+  text-shadow: 0 2px 32px rgba(0,0,0,.22);
+}
+
+/* scroll hint */
+.scroll-hint {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  opacity: 0; animation: fadeUp .8s ease .7s forwards; transition: opacity .4s;
+}
+.scroll-hint span { font-size: 9px; letter-spacing: .2em; color: var(--muted); }
+.scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--muted), transparent);
+  animation: lineDown 1.5s ease-in-out infinite;
+}
+@keyframes lineDown {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  50%  { transform: scaleY(1); transform-origin: top; }
+  100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ── Sections base ── */
+section { padding: 6rem 1.2rem; }
+.section-inner { max-width: 960px; margin: 0 auto; }
+.section-label { font-size: 10px; letter-spacing: .32em; color: var(--accent); text-transform: uppercase; margin-bottom: .8rem; }
+.section-title {
+  font-family: var(--serif); font-size: clamp(30px, 4vw, 52px);
+  font-weight: 200; margin-bottom: 4rem; letter-spacing: .08em; line-height: 1.25;
+}
+
+/* reveal */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .85s cubic-bezier(.22,1,.36,1), transform .85s cubic-bezier(.22,1,.36,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+
+/* ── Services ── */
+#services { background: var(--bg); }
+.services-grid {
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+  background: var(--border); border: 1px solid var(--border);
+}
+.service-card { background: var(--bg); padding: 2.5rem; transition: background .2s; }
+.service-card:hover { background: var(--bg2); }
+.service-icon { font-size: 20px; color: var(--accent); margin-bottom: 1rem; }
+.service-name { font-family: var(--serif); font-size: 16px; font-weight: 400; margin-bottom: .7rem; letter-spacing: .05em; }
+.service-desc { font-size: 15px; line-height: 2; color: var(--mid); }
+.service-tags { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: 1rem; }
+.stag { font-size: 10px; padding: 3px 10px; background: var(--bg2); color: var(--mid); border-radius: 1px; letter-spacing: .05em; border: 0.5px solid var(--border); }
+
+/* ══════════════════════════════════════
+   聲音・共振・療癒 — 3 張輪播
+══════════════════════════════════════ */
+.sound-section { position: relative; width: 100%; max-width: 1100px; margin: 0 auto; aspect-ratio: 4 / 5; overflow: hidden; }
+@media (min-width: 768px) { .sound-section { aspect-ratio: 16 / 10; } }
+.sound-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s cubic-bezier(.4,0,.2,1); }
+.sound-slide.active { opacity: 1; z-index: 2; }
+.sound-slide.prev   { opacity: 0; z-index: 1; }
+.sound-slide img {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 5s cubic-bezier(.25,.46,.45,.94);
+}
+.sound-slide.active img { transform: scale(1.0); }
+.sound-overlay {
+  position: absolute; inset: 0; z-index: 10;
+  background: rgba(247,244,239,.28);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.sound-title { font-family: var(--serif); font-size: clamp(18px, 3vw, 34px); font-weight: 300; letter-spacing: .22em; color: #fff; text-shadow: 0 2px 32px rgba(0,0,0,.22); }
+.sound-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 20; background: none; border: none; cursor: pointer;
+  width: 40px; height: 44px; display: flex; align-items: center; justify-content: center;
+  color: var(--charcoal); opacity: .55; transition: opacity .2s;
+}
+.sound-arrow:hover { opacity: 1; }
+.sound-arrow svg { width: 28px; height: 28px; }
+.sound-arrow-left  { left: .5rem; }
+.sound-arrow-right { right: .5rem; }
+
+/* ── Approach ── */
+#approach { background: var(--bg2); }
+.approach-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+.approach-block h4 { font-size: 10px; letter-spacing: .2em; color: var(--accent); margin-bottom: 1.5rem; font-weight: 500; }
+.approach-list { list-style: none; }
+.approach-list li { font-size: 13px; color: var(--mid); padding: .9rem 0 .9rem 1.4rem; position: relative; border-bottom: 0.5px solid var(--border); }
+.approach-list li:last-child { border-bottom: none; }
+.approach-list li::before { content: '·'; position: absolute; left: 0; color: var(--accent); font-size: 20px; line-height: 1; }
+
+/* ── Curriculum ── */
+#curriculum { background: var(--bg); }
+.curriculum-grid { display: grid; grid-template-columns: 1fr; gap: .8rem; }
+.module { border: 0.5px solid var(--border); padding: 1.8rem; transition: border-color .2s; }
+.module:hover { border-color: var(--accent); }
+.module-name { font-size: 19px; letter-spacing: .04em; color: var(--charcoal); margin-bottom: 1.2rem; font-weight: 600; line-height: 1.5; }
+.module-item { font-size: 14px; color: var(--mid); padding: 7px 0; border-bottom: 0.5px solid var(--border); letter-spacing: .03em; }
+.module-item:last-child { border-bottom: none; }
+
+/* 合作現場照片 — 橫向滑動輪播 */
+.partner-gallery-label { text-align: center; font-size: 11px; letter-spacing: .28em; color: var(--accent); margin: 3.5rem 0 1.8rem; text-transform: uppercase; }
+.coop-carousel { position: relative; }
+.cc-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(16px, calc(50% - 340px)); -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.cc-track::-webkit-scrollbar { display: none; }
+.cc-slide { flex: 0 0 auto; scroll-snap-align: center; position: relative; height: 56vh; max-height: 500px; min-height: 320px; border-radius: 6px; overflow: hidden; background: var(--bg); }
+.cc-slide img { height: 100%; width: auto; max-width: 88vw; display: block; }
+.pg-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 20px 18px; font-size: 13px; letter-spacing: .06em; line-height: 1.5; color: #fff; background: linear-gradient(to top, rgba(20,18,15,.74), rgba(20,18,15,0)); }
+.pg-cap b { display: block; font-weight: 600; font-size: 15px; letter-spacing: .04em; margin-bottom: 3px; }
+.cc-nav { display: flex; align-items: center; justify-content: center; gap: 1.4rem; margin-top: 1.6rem; }
+.cc-arrow { width: 40px; height: 40px; border-radius: 50%; border: 0.5px solid var(--border); background: var(--bg); color: var(--charcoal); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s, border-color .2s; padding: 0; }
+.cc-arrow:hover { border-color: var(--accent); background: #fff; }
+.cc-arrow svg { width: 18px; height: 18px; }
+.cc-dots { display: flex; gap: .5rem; align-items: center; }
+.cc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); border: none; padding: 0; cursor: pointer; transition: background .3s, width .3s, border-radius .3s; }
+.cc-dot.active { background: var(--accent); width: 22px; border-radius: 4px; }
+
+/* ══════════════════════════════════════
+   ABOUT — scroll-driven sticky（同 Hero 效果）
+══════════════════════════════════════ */
+#about { padding: 0; background: var(--bg2); }
+.about-scroll-wrap { height: auto; position: relative; }
+.about-sticky {
+  position: relative; top: auto;
+  height: auto; overflow: visible;
+  display: grid; grid-template-columns: 1fr;
+}
+
+/* 左側照片 */
+.about-slides { height: 70vw; min-height: 280px; position: relative; }
+.about-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 1.1s cubic-bezier(.4,0,.2,1);
+}
+.about-slide.active { opacity: 1; }
+.about-slide img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center top;
+  transform-origin: center center;
+}
+.about-slide.active img { animation: kb0 12s ease-out forwards; }
+
+/* 右側文字 */
+.about-text-panel {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 3rem 1.5rem; overflow-y: auto;
+  background: var(--bg2);
+}
+.about-roles { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+.about-role-tag {
+  font-size: 12px; letter-spacing: .08em;
+  padding: 4px 12px;
+  border: 0.5px solid rgba(106,142,143,.6);
+  color: var(--accent); border-radius: 1px;
+}
+.quote-block {
+  border-left: 1.5px solid var(--accent); padding-left: 1.5rem;
+  margin: 1.8rem 0; font-family: var(--serif); font-size: 19px;
+  line-height: 1.8; letter-spacing: .1em; color: var(--charcoal);
+}
+.about-text-panel p { font-size: 16.5px; line-height: 2.1; color: var(--mid); }
+.about-text-panel p + p { margin-top: 1rem; }
+.about-note { margin-top: 1.8rem; font-size: 14px; color: var(--muted); letter-spacing: .04em; line-height: 2; }
+
+/* slide counter (left bottom of about) */
+.about-step {
+  position: absolute; bottom: 2.5rem; left: 2rem; z-index: 10;
+  display: none; align-items: center; gap: .8rem;
+}
+.about-step-dots { display: flex; gap: .5rem; }
+.about-step-dot { width: 18px; height: 1.5px; background: var(--border); transition: background .3s, width .3s; }
+.about-step-dot.active { background: var(--charcoal); width: 28px; }
+
+/* ── Contact ── */
+#contact { background: var(--charcoal); color: rgba(247,244,239,.9); text-align: center; }
+#contact .section-label { color: var(--accent); }
+#contact .section-title { color: rgba(247,244,239,.9); }
+.contact-name { font-family: var(--serif); font-size: 22px; font-weight: 300; letter-spacing: .12em; margin-bottom: .6rem; }
+.contact-email { font-size: 14px; color: var(--accent); letter-spacing: .08em; margin-bottom: 2.5rem; }
+.contact-email a { color: var(--accent); text-decoration: none; }
+.contact-email a:hover { text-decoration: underline; }
+.qr-code { width: 132px; height: 132px; margin: 0 auto 1.5rem; display: block; background: transparent; box-sizing: border-box; filter: invert(1); mix-blend-mode: screen; }
+.contact-note { font-size: 14px; color: rgba(247,244,239,.5); line-height: 2.2; max-width: 400px; margin: 0 auto; }
+
+/* ── Footer ── */
+footer { background: var(--charcoal); border-top: 0.5px solid rgba(247,244,239,.08); padding: 2rem 1.2rem; text-align: center; font-size: 10px; color: rgba(247,244,239,.2); letter-spacing: .15em; }
+
+.nav-toggle {
+  display: flex;
+  flex-direction: column; justify-content: center; gap: 5px;
+  position: relative; width: 36px; height: 36px; background: none; border: none; cursor: pointer; z-index: 10000;
+}
+.nav-toggle span {
+  display: block; width: 22px; height: 1.5px;
+  background: #fff; border-radius: 1px; transition: all .3s;
+}
+nav.scrolled .nav-toggle span { background: var(--charcoal); }
+.nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--charcoal); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--charcoal); }
+
+/* ── Responsive (Mobile First) ── */
+
+/* ── sm: ≥ 576px ── */
+@media (min-width: 576px) {
+  section { padding: 5rem 2rem; }
+  .hero-content { right: 2rem; }
+  .hero-step { left: 2rem; }
+}
+
+/* ── md: ≥ 768px ── */
+@media (min-width: 768px) {
+  nav { padding: 1.2rem 2rem; background: rgba(247,244,239,0.95); border-bottom: 0.5px solid var(--border); }
+  .nav-toggle { display: none; }
+  .nav-links {
+    position: static;
+    display: flex !important;
+    flex-direction: row;
+    background: none;
+    backdrop-filter: none;
+    opacity: 1;
+    pointer-events: auto;
+    gap: 2.2rem;
+  }
+  .nav-links a { font-size: 15px; }
+  section { padding: 6rem 2.5rem; }
+  .hero-content { right: 2.5rem; bottom: 2.5rem; }
+  .hero-step { left: 2.5rem; bottom: 2.5rem; }
+  .hero-brand { letter-spacing: .1em; }
+  .services-grid { grid-template-columns: 1fr 1fr; }
+  .approach-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
+  .curriculum-grid { grid-template-columns: 1fr 1fr; }
+  .cc-slide { height: 62vh; max-height: 560px; }
+  .about-text-panel { padding: 4rem 2.5rem; display: flex; }
+  .sound-arrow { width: 48px; height: 48px; }
+  .sound-arrow-left { left: 1.5rem; }
+  .sound-arrow-right { right: 1.5rem; }
+}
+
+/* ── lg: ≥ 992px ── */
+@media (min-width: 992px) {
+  nav { padding: 1.2rem 3rem; }
+  section { padding: 10rem 3rem; }
+  footer { padding: 2rem 3rem; }
+  .hero-content { right: 3rem; }
+  .hero-step { left: 3rem; }
+  .hero-brand { letter-spacing: .12em; }
+
+  /* About：桌面才啟用 sticky 捲動式雙欄，避免小螢幕文字被裁切 */
+  .about-scroll-wrap { height: 300vh; }
+  .about-sticky {
+    position: sticky; top: 0;
+    height: 100vh; height: 100dvh;
+    overflow: hidden;
+    grid-template-columns: 1fr 1fr;
+  }
+  .about-slides { height: 100%; }
+  .about-text-panel { padding: 5rem 4rem; display: flex; }
+  .about-step { display: flex; }
+}
+
+/* ── xl: ≥ 1200px ── */
+@media (min-width: 1200px) {
+  .section-inner { max-width: 960px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav id="nav">
+  <a class="nav-name" href="#hero"></a>
+  <ul class="nav-links">
+    <li><a href="#services">服務項目</a></li>
+    <li><a href="#approach">課程方法</a></li>
+    <li><a href="#curriculum">合作對象</a></li>
+    <li><a href="#about">關於我</a></li>
+    <li><a href="#contact">聯絡</a></li>
+  </ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="選單">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<div id="hero">
+  <div class="hero-sticky" id="hero-sticky">
+
+    <!-- hero-frame：手機全螢幕 / 桌面置中留白 -->
+    <div class="hero-frame">
+
+      <div class="hero-slide active" id="hslide-0">
+        <img src="缽照/hero_hydrangea.jpg" alt="頌缽與繡球花">
+      </div>
+      <div class="hero-slide" id="hslide-1">
+        <img src="缽照/hero_waterfall.jpg" alt="頌缽與流水庭園">
+      </div>
+      <div class="hero-slide" id="hslide-2">
+        <img src="缽照/hero_lotus.jpg" alt="頌缽">
+      </div>
+
+      <div class="hero-progress"><div class="hero-progress-bar" id="hero-prog-bar"></div></div>
+
+      <div class="hero-step">
+        <div class="step-dots" id="step-dots">
+          <div class="step-dot active"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+        <span class="step-label" id="step-label"></span>
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-brand">梧桑頌缽心療</h1>
+      </div>
+
+    </div><!-- /hero-frame -->
+
+  </div>
+</div>
+
+<!-- ── Services ── -->
+<section id="services">
+  <div class="section-inner">
+    <p class="section-label reveal">服務項目</p>
+    <h2 class="section-title reveal reveal-delay-1">我能為你提供什麼</h2>
+    <div class="services-grid">
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">◎</div>
+        <div class="service-name">一對一頌缽療癒</div>
+        <p class="service-desc">透過頌缽聲音頻率的共振，量身調節情緒、深度放鬆身心，進入冥想般的靜定狀態。依個人身心狀態選用不同鉢型與特性的頌缽，提供專屬的聲音療癒體驗。</p>
+        <div class="service-tags"><span class="stag">個人化</span><span class="stag">聲音共振</span><span class="stag">深度放鬆</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">◬</div>
+        <div class="service-name">演講・工作坊</div>
+        <p class="service-desc">提供「身心療癒與自我覺察」主題之校園演講與外部工作坊，整合聲音療癒、正念練習與表達性藝術，依單位需求客製化設計課程節奏與深度。</p>
+        <div class="service-tags"><span class="stag">校園演講</span><span class="stag">工作坊</span><span class="stag">客製化</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon">◇</div>
+        <div class="service-name">通識課程</div>
+        <p class="service-desc">為大專院校設計之學期通識課程，結合頌缽聲音療癒、正念情緒調節與創傷知情心理學，帶領學生在體驗與實作中認識自我、照顧身心。</p>
+        <div class="service-tags"><span class="stag">大專通識</span><span class="stag">學期課程</span><span class="stag">體驗實作</span></div>
+      </div>
+      <div class="service-card reveal reveal-delay-4">
+        <div class="service-icon">◈</div>
+        <div class="service-name">心理顧問</div>
+        <p class="service-desc">以諮商心理專業提供個人與組織的心理顧問服務，涵蓋情緒困擾、人際關係、壓力調適與自我覺察，以創傷知情取向為基礎陪伴與支持。</p>
+        <div class="service-tags"><span class="stag">諮商心理</span><span class="stag">創傷知情</span><span class="stag">組織顧問</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 聲音・共振・療癒 -->
+<div class="sound-section">
+  <div class="sound-slide active" id="sslide-0">
+    <img src="缽照/indoor_vase2.jpg" alt="頌缽與插花" style="object-position: center 52%;">
+  </div>
+  <div class="sound-slide" id="sslide-1">
+    <img src="缽照/indoor_bowls.jpg" alt="一排頌缽與花瓶" style="object-position: center 55%;">
+  </div>
+  <div class="sound-slide" id="sslide-2">
+    <img src="缽照/IMG_1139.jpg" alt="暖燈下的頌缽" style="object-position: center 50%;">
+  </div>
+  <button class="sound-arrow sound-arrow-left" id="sound-prev" aria-label="上一張">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="sound-arrow sound-arrow-right" id="sound-next" aria-label="下一張">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="sound-overlay">
+    <p class="sound-title reveal">聲音・共振・療癒</p>
+  </div>
+</div>
+
+<!-- ── Approach ── -->
+<section id="approach">
+  <div class="section-inner">
+    <p class="section-label reveal">課程方法</p>
+    <h2 class="section-title reveal reveal-delay-1">我的工作取向</h2>
+    <div class="approach-grid">
+      <div class="approach-block reveal reveal-delay-2">
+        <h4>教學模式</h4>
+        <ul class="approach-list">
+          <li>頌缽實作</li>
+          <li>音缽傳心</li>
+          <li>電影裡的心理學</li>
+          <li>分組交流（以仁會友，以友輔仁）</li>
+          <li>課堂分享（你說・我說・大家說）</li>
+        </ul>
+      </div>
+      <div class="approach-block reveal reveal-delay-3">
+        <h4>生命轉化的技藝</h4>
+        <ul class="approach-list">
+          <li>柔適照顧</li>
+          <li>身體的人文空間</li>
+          <li>心理的傷身體會記住</li>
+          <li>生命敘說</li>
+          <li>正念冥想</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Curriculum ── -->
+<section id="curriculum">
+  <div class="section-inner">
+    <p class="section-label reveal">合作對象</p>
+    <h2 class="section-title reveal reveal-delay-1">合作單位</h2>
+    <div class="curriculum-grid">
+      <div class="module reveal reveal-delay-1">
+        <div class="module-name">澎湖高級海事水產職業學校</div>
+        <div class="module-item">頌缽工作坊</div>
+      </div>
+      <div class="module reveal reveal-delay-2">
+        <div class="module-name">亞東科技大學</div>
+        <div class="module-item">讀書分享</div>
+        <div class="module-item">頌缽分享</div>
+      </div>
+      <div class="module reveal reveal-delay-3">
+        <div class="module-name">宏國德霖科技大學</div>
+        <div class="module-item">通識課程</div>
+      </div>
+      <div class="module reveal reveal-delay-4">
+        <div class="module-name">台北市道教玄靈協會</div>
+        <div class="module-item">頌缽培訓</div>
+        <div class="module-item">缽音傳心・靜心工作坊</div>
+      </div>
+    </div>
+
+    <p class="partner-gallery-label reveal">活動現場</p>
+    <div class="coop-carousel reveal">
+      <div class="cc-track" id="cc-track">
+      <figure class="cc-slide"><img src="合作照/yadong-reading.jpg" alt="亞東科技大學讀書分享" loading="lazy"><figcaption class="pg-cap"><b>亞東科技大學</b>讀書・頌缽分享</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/penghu-screen.jpg" alt="澎湖海事水產職校音聲傳心" loading="lazy"><figcaption class="pg-cap"><b>澎湖海事水產職校</b>音聲傳心・後疫健康與自我照護</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/classroom-a.jpg" alt="校園頌缽體驗課程" loading="lazy"><figcaption class="pg-cap"><b>校園通識課程</b>身心療癒與自我覺察</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/temple-hall.jpg" alt="道教玄靈協會缽音傳心" loading="lazy"><figcaption class="pg-cap"><b>台北市道教玄靈協會</b>溪頭靈修靜心</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/workshop-room.jpg" alt="靜心工作坊場地" loading="lazy"><figcaption class="pg-cap"><b>澎湖高級海事水產職業學校</b>頌缽工作坊</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/soundbath.jpg" alt="頌缽聲音浴療癒" loading="lazy"><figcaption class="pg-cap"><b>頌缽療癒</b>躺臥式聲音浴</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/training.jpg" alt="頌缽培訓" loading="lazy"><figcaption class="pg-cap"><b>台北市道教玄靈協會</b>頌缽靜心</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/classroom-b.jpg" alt="校園講座現場" loading="lazy"><figcaption class="pg-cap"><b>校園講座</b>身心療癒與自我覺察</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/performance.jpg" alt="頌缽演奏" loading="lazy"><figcaption class="pg-cap"><b>缽音傳心工作坊</b>單缽手持共鳴</figcaption></figure>
+      <figure class="cc-slide"><img src="合作照/yadong-practice.jpg" alt="亞東科技大學頌缽療癒實作" loading="lazy"><figcaption class="pg-cap"><b>亞東科技大學</b>頌缽療癒實作</figcaption></figure>
+      </div>
+      <div class="cc-nav">
+        <button class="cc-arrow" id="cc-prev" aria-label="上一張"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="cc-dots" id="cc-dots"></div>
+        <button class="cc-arrow" id="cc-next" aria-label="下一張"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     ABOUT — scroll-driven sticky
+══════════════════════════════════════ -->
+<div id="about">
+  <div class="about-scroll-wrap" id="about-wrap">
+    <div class="about-sticky">
+
+      <!-- 左：3 張照片 scroll-driven -->
+      <div class="about-slides" id="about-slides">
+        <div class="about-slide active" id="aslide-0">
+          <img src="個人照/FE77B17F-6AEB-4E59-979E-1A74299B8E51.JPG" alt="鳥居前持缽">
+        </div>
+        <div class="about-slide" id="aslide-1">
+          <img src="上課照/classicu 2025-03-15 104602.278.JPG" alt="廟宇台階持缽">
+        </div>
+        <div class="about-slide" id="aslide-2">
+          <img src="上課照/classicu 2025-03-15 110743.321.JPG" alt="山崖雪景持缽">
+        </div>
+        <!-- 步驟點 -->
+        <div class="about-step">
+          <div class="about-step-dots" id="about-step-dots">
+            <div class="about-step-dot active"></div>
+            <div class="about-step-dot"></div>
+            <div class="about-step-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右：文字 -->
+      <div class="about-text-panel">
+        <p class="section-label">關於我</p>
+        <h2 class="section-title" style="margin-bottom:1.5rem;">整合身心工作者</h2>
+        <div class="about-roles">
+          <span class="about-role-tag">心理學系碩士</span>
+          <span class="about-role-tag">諮商心理師高等考試合格</span>
+          <span class="about-role-tag">大專校院輔導老師</span>
+          <span class="about-role-tag">大專校院通識課程講師</span>
+          <span class="about-role-tag">頌缽療癒師</span>
+        </div>
+        <blockquote class="quote-block">為學日益，為道日損</blockquote>
+        <p>同時擁有諮商心理師證照，在大專校院擔任輔導老師，並精通頌缽療癒。融合心理學理論基礎與傳統療癒實踐，提供全方位的身心照顧。</p>
+        <p>致力於帶領「一堂讓你放鬆的課程」，引導學員在允許自己閉上眼睛的空間中，卸下日常的緊繃，找回內在的安靜。</p>
+        <p class="about-note">服務對象：大學生心理輔導、單位知能研習、頌缽工作坊、冥想靜心團體頌缽、一般民眾身心療癒、對內在探索有興趣者</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Contact ── -->
+<section id="contact">
+  <div class="section-inner">
+    <p class="section-label reveal">聯絡我</p>
+    <h2 class="section-title reveal reveal-delay-1">預約頌缽或工作坊邀請</h2>
+    <div class="contact-name reveal reveal-delay-2">梧桑頌缽心療</div>
+    <div class="contact-email reveal reveal-delay-2">
+      <a href="https://www.instagram.com/tin.bowl/?hl=zh-tw" target="_blank" rel="noopener">Instagram @tin.bowl</a>
+    </div>
+    <img class="qr-code reveal reveal-delay-3" src="qr.png" alt="預約 QR Code">
+    <p class="contact-note reveal reveal-delay-3">
+      QR Code 可連結至 Instagram 或線上預約頁面<br>
+      歡迎透過 Instagram 洽詢課程、個人諮商或工作坊邀請
+    </p>
+  </div>
+</section>
+
+<footer>© 梧桑頌缽心療・身心療癒與自我覺察</footer>
+
+<script>
+/* ── Nav ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ══════════════════
+   HERO scroll-driven + Ken Burns restart
+══════════════════ */
+const heroEl   = document.getElementById('hero');
+const progBar  = document.getElementById('hero-prog-bar');
+const stepDots = Array.from(document.querySelectorAll('.step-dot'));
+const stepLbl  = document.getElementById('step-label');
+const scrollHint = document.getElementById('scroll-hint');
+const HTOTAL   = 3;
+let heroCur    = 0;
+
+function setHeroSlide(idx) {
+  if (idx === heroCur) return;
+  const oldEl = document.getElementById('hslide-' + heroCur);
+  const newEl = document.getElementById('hslide-' + idx);
+  oldEl.classList.remove('active');
+  stepDots[heroCur].classList.remove('active');
+  heroCur = idx;
+  // restart Ken Burns by removing and re-adding active
+  newEl.classList.remove('active');
+  void newEl.offsetWidth; // reflow
+  newEl.classList.add('active');
+  stepDots[heroCur].classList.add('active');
+  stepLbl.textContent = '';
+}
+
+window.addEventListener('scroll', () => {
+  const rect = heroEl.getBoundingClientRect();
+  const scrolled = -rect.top;
+  const scrollable = heroEl.offsetHeight - window.innerHeight;
+  const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+  progBar.style.width = (progress * 100) + '%';
+  setHeroSlide(Math.min(HTOTAL - 1, Math.floor(progress * HTOTAL)));
+  scrollHint.style.opacity = scrolled > 80 ? '0' : '';
+}, { passive: true });
+
+/* step-dots click to jump slide (desktop) */
+stepDots.forEach((dot, i) => {
+  dot.style.cursor = 'pointer';
+  dot.addEventListener('click', () => {
+    const scrollable = heroEl.offsetHeight - window.innerHeight;
+    const target = heroEl.offsetTop + (i / HTOTAL) * scrollable + 1;
+    window.scrollTo({ top: target, behavior: 'smooth' });
+  });
+});
+
+/* ══════════════════
+   ABOUT scroll-driven
+══════════════════ */
+const aboutWrap = document.getElementById('about-wrap');
+const aSlides   = Array.from(document.querySelectorAll('.about-slide'));
+const aDots     = Array.from(document.querySelectorAll('.about-step-dot'));
+const ATOTAL    = 3;
+let aboutCur    = 0;
+
+function setAboutSlide(idx) {
+  if (idx === aboutCur) return;
+  aSlides[aboutCur].classList.remove('active');
+  aDots[aboutCur].classList.remove('active');
+  aboutCur = idx;
+  const el = aSlides[aboutCur];
+  el.classList.remove('active');
+  void el.offsetWidth;
+  el.classList.add('active');
+  aDots[aboutCur].classList.add('active');
+}
+
+window.addEventListener('scroll', () => {
+  if (window.innerWidth < 992) return;
+  const rect = aboutWrap.getBoundingClientRect();
+  const scrolled = -rect.top;
+  const scrollable = aboutWrap.offsetHeight - window.innerHeight;
+  const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+  setAboutSlide(Math.min(ATOTAL - 1, Math.floor(progress * ATOTAL)));
+}, { passive: true });
+
+/* ══════════════════
+   聲音・共振・療癒
+══════════════════ */
+const soundSlides = Array.from(document.querySelectorAll('.sound-slide'));
+let soundCur = 0, soundTimer;
+
+function goSound(n) {
+  const old = soundCur;
+  soundSlides[old].classList.remove('active');
+  soundSlides[old].classList.add('prev');
+  setTimeout(() => soundSlides[old].classList.remove('prev'), 1400);
+  soundCur = (n + soundSlides.length) % soundSlides.length;
+  soundSlides[soundCur].classList.add('active');
+}
+function startSound() {
+  clearInterval(soundTimer);
+  soundTimer = setInterval(() => goSound(soundCur + 1), 4000);
+}
+document.getElementById('sound-prev').addEventListener('click', () => { goSound(soundCur - 1); startSound(); });
+document.getElementById('sound-next').addEventListener('click', () => { goSound(soundCur + 1); startSound(); });
+startSound();
+
+/* Mobile nav toggle */
+const navToggle = document.getElementById('nav-toggle');
+const navLinks  = document.querySelector('.nav-links');
+navToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  navToggle.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  navLinks.classList.remove('open');
+  navToggle.classList.remove('open');
+}));
+
+/* ── Scroll reveal ── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* 合作現場 — 橫向輪播 */
+(function(){
+  const track = document.getElementById('cc-track');
+  if (!track) return;
+  const slides = Array.from(track.querySelectorAll('.cc-slide'));
+  const dotsWrap = document.getElementById('cc-dots');
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.className = 'cc-dot' + (i === 0 ? ' active' : '');
+    b.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+    b.addEventListener('click', () => centerSlide(i));
+    dotsWrap.appendChild(b);
+  });
+  const dots = Array.from(dotsWrap.children);
+  function centerSlide(i) {
+    const s = slides[i];
+    const target = Math.max(0, Math.min(track.scrollWidth - track.clientWidth, s.offsetLeft - (track.clientWidth - s.clientWidth) / 2));
+    const start = track.scrollLeft;
+    const dist = target - start;
+    if (Math.abs(dist) < 1) return;
+    const dur = 460;
+    let t0 = null;
+    const ease = x => 1 - Math.pow(1 - x, 3);
+    if (track._ccAnim) cancelAnimationFrame(track._ccAnim);
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      const p = Math.min(1, (ts - t0) / dur);
+      track.scrollLeft = start + dist * ease(p);
+      if (p < 1) { track._ccAnim = requestAnimationFrame(step); }
+    }
+    track._ccAnim = requestAnimationFrame(step);
+  }
+  function currentIndex() {
+    const center = track.scrollLeft + track.clientWidth / 2;
+    let best = 0, bd = Infinity;
+    slides.forEach((s, i) => {
+      const c = s.offsetLeft + s.clientWidth / 2;
+      const d = Math.abs(c - center);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return best;
+  }
+  function update() {
+    const i = currentIndex();
+    dots.forEach((d, j) => d.classList.toggle('active', j === i));
+  }
+  let raf;
+  track.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(update); });
+  document.getElementById('cc-prev').addEventListener('click', () => centerSlide(Math.max(0, currentIndex() - 1)));
+  document.getElementById('cc-next').addEventListener('click', () => centerSlide(Math.min(slides.length - 1, currentIndex() + 1)));
+})();
+</script>
+</body>
+</html>
